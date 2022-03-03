@@ -1,5 +1,9 @@
 # JavaPoker
 
+## Requirements:
+- Java v17.0.2
+- JUnit v5.7.0
+
 ## How to run:
 Navigate to source files and run `javac Poker.java` to compile.
 Run `java -cp . Poker` to start the program.

@@ -2,10 +2,101 @@ import java.util.*;
 
 public class Hand {
     private List<Card> cards;
+    private List<Card> straightFlush;
+    private List<Card> fourOfAKind;
+    private List<List<Card>> fullHouse;
+    private List<Card> flush;
+    private List<Card> straight;
+    private List<Card> threeOfAKind;
+    private List<List<Card>> pairs;
 
     public Hand(List<Card> cards) {
         this.cards = new ArrayList<>(cards);
         Collections.sort(this.cards);
+        Collections.reverse(this.cards);
+
+        this.pairs = containsPair() ? createListOfPairs() : Collections.emptyList();
+        this.threeOfAKind = containsThreeOfAKind() ? createListThreeOfAKind() : Collections.emptyList();
+        this.straight = containsStraight() ? new ArrayList<>(cards) : Collections.emptyList();
+        this.flush = containsFlush() ? new ArrayList<>(cards) : Collections.emptyList();
+        this.fullHouse = containsFullHouse() ? List.of(getThreeOfAKind(), getPair()) : List.of(Collections.emptyList(), Collections.emptyList());
+        this.fourOfAKind = containsFourOfAKind() ? createListFourOfAKind() : Collections.emptyList();
+        this.straightFlush = containsStraightFlush() ? new ArrayList<>(cards) : Collections.emptyList();
+    }
+
+    /**
+     * Creates a list of four same value cards if the hand contains four cards of a kind.
+     * Returns empty list otherwise.
+     * @return  List of four same value cards or empty list.
+     */
+    private List<Card> createListFourOfAKind() {
+        return createListFromSameValueCardsAmountingTo(4);
+    }
+
+    /**
+     * Creates a list of three same value cards if the hand contains three cards of a kind.
+     * Returns empty list otherwise.
+     * @return  List of three same value cards or empty list.
+     */
+    private List<Card> createListThreeOfAKind() {
+        return createListFromSameValueCardsAmountingTo(3);
+    }
+
+    /**
+     * @return  Returns a list containing lists of pairs. Sorted by card value in descending order.
+     */
+    private List<List<Card>> createListOfPairs() {
+        List<List<Card>> listOfPairs = new ArrayList<>();
+        List<Card> cardsInPair = new ArrayList<>();
+        List<Card> remainder = new ArrayList<>();
+        Map<String, Integer> cardPerValue = countCardsPerValue();
+
+        for (String key: cardPerValue.keySet()) {
+            if (cardPerValue.get(key) == 2) {
+                List<Card> pair = new ArrayList<>();
+                for (Card card: this.cards) {
+                    if (Objects.equals(card.getValue().toString(), key)) {
+                        pair.add(card);
+                        cardsInPair.add(card);
+                    }
+                }
+                listOfPairs.add(pair);
+            }
+        }
+
+        Collections.reverse(listOfPairs);
+        for (Card card: cards) {
+            if (!cardsInPair.contains(card)) {
+                remainder.add(card);
+            }
+        }
+        listOfPairs.add(remainder);
+
+        return listOfPairs;
+    }
+
+    /**
+     * Creates a list when same value cards amounting to given number exist.
+     * Creates an empty list otherwise.
+     * @param number    Number of same value cards for a list to be created.
+     * @return          List of same value cards of given number or empty list.
+     */
+    private List<Card> createListFromSameValueCardsAmountingTo(int number) {
+        List<Card> listOfCards = new ArrayList<>();
+        Map<String, Integer> cardPerValue = countCardsPerValue();
+
+        for (String key: cardPerValue.keySet()) {
+            if (cardPerValue.get(key) == number) {
+                for (Card card: this.cards) {
+                    if (Objects.equals(card.getValue().toString(), key)) {
+                        listOfCards.add(card);
+                    }
+                }
+                break;
+            }
+        }
+
+        return listOfCards;
     }
 
     public boolean containsStraightFlush() {
@@ -136,5 +227,40 @@ public class Hand {
     @Override
     public String toString() {
         return this.cards.toString();
+    }
+    public List<Card> getCards() {
+        return cards;
+    }
+
+    public List<Card> getStraightFlush() {
+        return straightFlush;
+    }
+
+    public List<Card> getFourOfAKind() {
+        return fourOfAKind;
+    }
+
+    public List<List<Card>> getFullHouse() {
+        return fullHouse;
+    }
+
+    public List<Card> getFlush() {
+        return flush;
+    }
+
+    public List<Card> getStraight() {
+        return straight;
+    }
+
+    public List<Card> getThreeOfAKind() {
+        return threeOfAKind;
+    }
+
+    public List<List<Card>> getPairs() {
+        return pairs;
+    }
+
+    public List<Card> getPair() {
+        return pairs.isEmpty() ? Collections.emptyList() : pairs.get(0);
     }
 }
